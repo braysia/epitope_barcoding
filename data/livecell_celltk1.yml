@@ -1,0 +1,95 @@
+## Setting for segmentation and tracking. Input yaml file for CellTK. 
+## with nuclear markers
+
+OUTPUT_DIR: <OUTPUT_DIR>
+PARENT_INPUT: <INPUT_DIR>
+
+operations:
+- function: gaussian_laplace
+  params:
+    NEG: True
+    SIGMA: 3
+    OFFSET: 10
+  images: $INPUT/*l000*
+  output: op001
+- function: adaptive_thres
+  params:
+    FIL1: 10
+  images: op001
+  output: op002
+- function: propagate_multisnakes
+  images: $INPUT/*l000*
+  labels: op002
+  params:
+    NITER: 5
+    lambda2: 10
+  output: op003
+- function: concave_cut
+  images: $INPUT/*l000*
+  labels: op003
+  output: op003
+  params:
+    SMALL_RAD: 4.5
+    LARGE_RAD: 12
+- - function: run_lap
+    images: $INPUT/*l000*
+    labels: op003
+    params:
+      MASSTHRES: 0.25
+      DISPLACEMENT: 25
+  - function: track_neck_cut
+    params:
+      MASSTHRES: 0.35
+      THRES_ANGLE: 200
+  - function: track_neck_cut
+    params:
+       DISPLACEMENT: 20
+       THRES_ANGLE: 180
+  - function: watershed_distance
+    params:
+      DISPLACEMENT: 25
+      MASSTHRES: 0.35
+      REGMAX: 10
+  - function: watershed_distance
+    params:
+      DISPLACEMENT: 25
+      MASSTHRES: 0.35
+      REGMAX: 6
+  - function: watershed_distance
+    params:
+      DISPLACEMENT: 25
+      MASSTHRES: 0.35
+      REGMAX: 4
+  - function: nearest_neighbor
+    params:
+      DISPLACEMENT: 30
+      MASSTHRES: 0.15
+    output: tracked
+- - function: gap_closing
+    images: $INPUT/*l000*
+    labels: tracked
+  - function: detect_division
+    params:
+      DISPLACEMENT: 40
+      DIVISIONMASSERR: 0.2
+  - function: cut_short_traces
+    params:
+      minframe: 20
+    output: nuc
+- function: ring_dilation
+  params:
+    RINGWIDTH: 4
+    BUFFER: 3
+  labels: nuc
+  output: cyto
+- function: apply
+  images:
+    - $INPUT/*l001*
+    - $INPUT/*l000*
+  labels:
+    - nuc
+    - cyto
+  ch_names:
+    - H2B
+    - FITC
+

@@ -1,0 +1,84 @@
+## Setting for segmentation and tracking. Input yaml file for CellTK. 
+## Without nuclear markers
+
+
+OUTPUT_DIR: <OUTPUT_DIR>
+PARENT_INPUT: <INPUT_DIR>
+
+operations:
+- function: deep_unet
+  images: $INPUT/*tif
+  output: op000
+  params:
+    weight_path: <weights.hdf5 produced by CellUNet>
+    region: 2
+- function: constant_thres
+  images: op000
+  output: op001
+  params:
+    THRES: 0.1
+- function: rolling_ball
+  output: oprb
+  images: $INPUT/*tif
+  params:
+    OFFSET: 5
+- - function: nearest_neighbor
+    images: oprb
+    labels: op001
+    params:
+      MASSTHRES: 0.25
+      DISPLACEMENT: 15
+  - function: track_neck_cut
+    params:
+      MASSTHRES: 0.35
+      THRES_ANGLE: 200
+      DISPLACEMENT: 10
+  - function: track_neck_cut
+    params:
+       DISPLACEMENT: 10
+       THRES_ANGLE: 180
+  - function: watershed_distance
+    params:
+      DISPLACEMENT: 10
+      MASSTHRES: 0.35
+      REGMAX: 10
+  - function: watershed_distance
+    params:
+      DISPLACEMENT: 15
+      MASSTHRES: 0.35
+      REGMAX: 6
+  - function: watershed_distance
+    params:
+      DISPLACEMENT: 15
+      MASSTHRES: 0.35
+      REGMAX: 4
+  - function: nearest_neighbor
+    params:
+      DISPLACEMENT: 15
+      MASSTHRES: 0.15
+    output: tracked
+- - function: gap_closing
+    images: oprb
+    labels: tracked
+    params:
+      maxgap: 2
+  - function: cut_short_traces
+    params:
+      minframe: 16
+    output: nuc
+- function: ring_dilation_above_adaptive
+  params:
+    RINGWIDTH: 8
+    BUFFER: 2
+  labels: nuc
+  output: cyto
+- function: apply
+  images:
+    - oprb
+  labels:
+    - nuc
+    - cyto
+  ch_names:
+    - FITC
+
+
