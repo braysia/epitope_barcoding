@@ -1,6 +1,5 @@
 import numpy as np
 import pysam
-
 import sys
 from dna2aa import dna2aa
 
@@ -8,7 +7,7 @@ from dna2aa import dna2aa
 P2A = 'GGAAGCGGAGCTACTAACTTCAGCCTGCTGAAGCAGGCTGGAGACGTGGAGGAGAACCCTGGACCT'.upper()
 BINI = 'gggcgcgcc'.upper()  # linker sequences immediately before the start of barcodes
 NINI = 'AGgccgcacataGGTACCga'.upper()  # sequences immediately before the start of N8
-spacer = 3  # To account for short N8. Not required if NNN oligo is high quality (PAGE purified)
+spacer = 3  # To account for short N8. Not required if NNN oligo is high quality (e.g. PAGE purified)
 BINI = BINI[:-spacer]
 
 

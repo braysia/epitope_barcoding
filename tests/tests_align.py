@@ -4,7 +4,7 @@ module_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(os.path.join(module_dir, 'src'))
 import numpy as np
 from utils import ImageDict
-from scipy.misc import imread
+from imageio import imread
 
 def synthetic_data():
     img = imread('data/sample.png')
