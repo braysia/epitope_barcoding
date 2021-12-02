@@ -1,6 +1,6 @@
 # epitope_barcoding
 
-Sample code and data generated for "A multiplexed epitope barcoding strategy that enables dynamic cellular phenotypic screens". 
+Code and sample data generated for "A multiplexed epitope barcoding strategy that enables dynamic cellular phenotypic screens". 
 
 ### Sequence analysis for linking NNNs and epitopes
 ```
